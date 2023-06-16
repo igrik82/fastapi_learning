@@ -1,3 +1,4 @@
+'''FastApi learning'''
 from typing import Optional
 import uvicorn
 import fastapi
