@@ -56,7 +56,7 @@ def show_posts():
 
 
 @app.get('/posts/latest')
-def show_lat_post():
+def show_last_post():
     post = my_posts[len(my_posts) - 1]
     return {'Post': post}
 
@@ -80,3 +80,16 @@ def delete_post(post_id: int):
                             detail='Post not found')
     my_posts.pop(index)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.put('/posts/{post_id}', status_code=status.HTTP_202_ACCEPTED)
+def udate_post(post_id: int, user_post: Poster):
+    index = find_index_by_id(post_id)
+    if index is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='Post not found')
+
+    post = user_post.dict()
+    my_posts[index]['title'] = post['title']
+    my_posts[index]['content'] = post['content']
+    return {'message': my_posts[index]}
