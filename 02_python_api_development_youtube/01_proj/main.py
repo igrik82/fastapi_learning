@@ -43,6 +43,11 @@ def create_post(user_post: Poster):
     return {'Post': post}
 
 
+@app.get('/posts')
+def show_posts():
+    return {'Posts': my_posts}
+
+
 @app.get('/posts/latest')
 def show_lat_post():
     post = my_posts[len(my_posts) - 1]
