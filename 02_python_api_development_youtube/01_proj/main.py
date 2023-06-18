@@ -2,7 +2,7 @@
 from random import randint
 from typing import Optional
 from pydantic import BaseModel
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
 
 app = FastAPI()
 
@@ -34,8 +34,8 @@ def root():
     return {'message': 'Hello world!'}
 
 
-@app.post('/posts')
-def create_post(user_post: Poster):
+@app.post('/posts', status_code=status.HTTP_201_CREATED)
+def create_post(user_post: Poster, ):
     post = user_post.dict()
     if not post['id']:
         post['id'] = randint(1, 1_000_000)
@@ -57,4 +57,9 @@ def show_lat_post():
 @app.get('/posts/{post_id}')
 def show_post(post_id: int):
     post = find_post(post_id)
+
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail={
+                                'Post': f'Post with id: "{post_id}" not found'})
     return {'Post': post}
