@@ -1,7 +1,9 @@
 '''First project'''
 from random import randint
 from typing import Optional
+from psycopg.rows import dict_row
 from pydantic import BaseModel
+import psycopg
 from fastapi import FastAPI, Response, status, HTTPException
 
 app = FastAPI()
@@ -13,6 +15,17 @@ class Poster(BaseModel):
     content: str
     published: bool = True
     rating: Optional[int] = None
+
+
+try:
+    conn = psycopg.connect(host='192.168.88.226',
+                           dbname='posts', user='fastapi', password='123456', row_factory=dict_row)
+    cursor = conn.cursor()
+    print('Database connection was succesfull!')
+
+except Exception as er:
+    print('Connection failed...')
+    print('Error: ', er)
 
 
 # Storing data in lists
@@ -52,7 +65,9 @@ def create_post(user_post: Poster, ):
 
 @app.get('/posts')
 def show_posts():
-    return {'Posts': my_posts}
+    cursor.execute('''SELECT * FROM posts''')
+    posts = cursor.fetchall()
+    return {'Posts': posts}
 
 
 @app.get('/posts/latest')
