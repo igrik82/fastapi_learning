@@ -1,12 +1,13 @@
 '''Connection to Database'''
 
 from sqlalchemy import create_engine
-# from sqlalchemy import create_engine, text
+from sqlalchemy_utils import database_exists, create_database
 
-
+DATABASE = 'test_post_user'
 engine = create_engine(
-    'postgresql+psycopg://fastapi:123456@192.168.88.226/posts', echo=True)
+    f'postgresql+psycopg://fastapi:123456@192.168.88.226/{DATABASE}', echo=True)
 
-# with engine.connect() as conn:
-#     result = conn.execute(text('select * from posts'))
-#     print(result.all())
+if not database_exists(engine.url):
+    create_database(engine.url)
+
+print(database_exists(engine.url))
