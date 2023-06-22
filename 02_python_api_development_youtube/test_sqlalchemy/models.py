@@ -27,7 +27,7 @@ class Post(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     content: Mapped[str] = mapped_column(nullable=False)
     published: Mapped[bool] = mapped_column(default=True, nullable=False)
-    user: Mapped['User'] = relationship(back_populates='user_post')
+    user: Mapped['User'] = relationship(back_populates='post')
 
     def __repr__(self) -> str:
         return f'<Post title={self.title} content={self.content}'
