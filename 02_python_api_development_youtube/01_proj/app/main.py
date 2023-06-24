@@ -4,7 +4,13 @@ from typing import Optional
 from psycopg.rows import dict_row
 from pydantic import BaseModel
 import psycopg
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import Depends, FastAPI, Response, status, HTTPException, Depends
+import models
+from database import engine, get_db
+from sqlalchemy.orm import Session
+
+# Create table
+models.Poster.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -62,20 +68,27 @@ def root():
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(
-    user_post: Poster,
-):
-    post = user_post.dict()
-    if not post["id"]:
-        post["id"] = randint(1, 1_000_000)
-    my_posts.append(post)
-    return {"Post": post}
+def create_post(user_post: Poster, db: Session = Depends(get_db)):
+    # new_post = models.Poster(
+    #     title=user_post.title,
+    #     content=user_post.content,
+    #     published=user_post.published,
+    # )
+    new_post = models.Poster(**user_post.dict())
+
+    db.add(new_post)
+    db.commit()
+    # return back post
+    db.refresh(new_post)
+
+    return {"Post": new_post}
 
 
 @app.get("/posts")
-def show_posts():
-    cursor.execute("""SELECT * FROM posts""")
-    posts = cursor.fetchall()
+def show_posts(db: Session = Depends(get_db)):
+    # cursor.execute("""SELECT * FROM posts""")
+    # posts = cursor.fetchall()
+    posts = db.query(models.Poster).all()
     return {"Posts": posts}
 
 
