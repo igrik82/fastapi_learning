@@ -69,11 +69,6 @@ def root():
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_post(user_post: Poster, db: Session = Depends(get_db)):
-    # new_post = models.Poster(
-    #     title=user_post.title,
-    #     content=user_post.content,
-    #     published=user_post.published,
-    # )
     new_post = models.Poster(**user_post.dict())
 
     db.add(new_post)
