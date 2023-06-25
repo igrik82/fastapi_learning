@@ -1,10 +1,9 @@
 """First project"""
-from random import randint
 from typing import Optional
 from psycopg.rows import dict_row
 from pydantic import BaseModel
 import psycopg
-from fastapi import Depends, FastAPI, Response, status, HTTPException, Depends
+from fastapi import Depends, FastAPI, Response, status, HTTPException
 import models
 from database import engine, get_db
 from sqlalchemy.orm import Session
@@ -15,12 +14,11 @@ models.Poster.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-class Poster(BaseModel):
-    id: Optional[int] = None
+class Poster_pydantic(BaseModel):
     title: str
     content: str
-    published: bool = True
-    rating: Optional[int] = None
+    published: bool = False
+    rating: Optional[int] = 2
 
 
 try:
@@ -68,7 +66,7 @@ def root():
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(user_post: Poster, db: Session = Depends(get_db)):
+def create_post(user_post: Poster_pydantic, db: Session = Depends(get_db)):
     new_post = models.Poster(**user_post.dict())
 
     db.add(new_post)
@@ -88,43 +86,51 @@ def show_posts(db: Session = Depends(get_db)):
 
 
 @app.get("/posts/latest")
-def show_last_post():
-    post = my_posts[len(my_posts) - 1]
+def show_last_post(db: Session = Depends(get_db)):
+    post_query = db.query(models.Poster)
+    index: int = post_query.count()
+    post = post_query.where(models.Poster.id == index).first()
     return {"Post": post}
 
 
 @app.get("/posts/{post_id}")
-def show_post(post_id: int):
-    post = find_post(post_id)
+def show_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Poster).filter(models.Poster.id == post_id).first()
 
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"Post": f'Post with id: "{post_id}" not found'},
+            detail={"Post": f"Post with id: {post_id} not found"},
         )
     return {"Post": post}
 
 
 @app.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(post_id: int):
-    index = find_index_by_id(post_id)
-    if index is None:
+def delete_post(post_id: int, db: Session = Depends(get_db)):
+    post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
+    if post_query.first() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
-    my_posts.pop(index)
+
+    post_query.delete(synchronize_session=False)
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.put("/posts/{post_id}", status_code=status.HTTP_202_ACCEPTED)
-def udate_post(post_id: int, user_post: Poster):
-    index = find_index_by_id(post_id)
-    if index is None:
+def udate_post(
+    post_id: int, user_post: Poster_pydantic, db: Session = Depends(get_db)
+):
+    post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
+    old_post = post_query.first()
+
+    if old_post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
 
-    post = user_post.dict()
-    my_posts[index]["title"] = post["title"]
-    my_posts[index]["content"] = post["content"]
-    return {"message": my_posts[index]}
+    post_query.update(user_post.dict(), synchronize_session=False)
+    db.commit()
+
+    return {"message": post_query.first()}
