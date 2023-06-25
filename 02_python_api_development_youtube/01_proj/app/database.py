@@ -5,7 +5,8 @@ from sqlalchemy_utils import database_exists, create_database
 
 DATABASE = "blog"
 engine = create_engine(
-    f"postgresql+psycopg://fastapi:123456@192.168.88.226/{DATABASE}", echo=True
+    f"postgresql+psycopg://fastapi:123456@192.168.88.226/{DATABASE}",
+    echo=False,
 )
 
 if not database_exists(engine.url):
