@@ -1,12 +1,9 @@
 """First project"""
-from typing import Optional
-from psycopg.rows import dict_row
-from pydantic import BaseModel
-import psycopg
 from fastapi import Depends, FastAPI, Response, status, HTTPException
 import models
 from database import engine, get_db
 from sqlalchemy.orm import Session
+from schema import CreateUpdatePostPydan, ResponsePydan
 
 # Create table
 models.Poster.metadata.create_all(bind=engine)
@@ -14,59 +11,17 @@ models.Poster.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-class Poster_pydantic(BaseModel):
-    title: str
-    content: str
-    published: bool = False
-    rating: Optional[int] = 2
-
-
-try:
-    conn = psycopg.connect(
-        host="192.168.88.226",
-        dbname="posts",
-        user="fastapi",
-        password="123456",
-        row_factory=dict_row,
-    )
-    cursor = conn.cursor()
-    print("Database connection was succesfull!")
-
-except Exception as er:
-    print("Connection failed...")
-    print("Error: ", er)
-
-
-# Storing data in lists
-my_posts = [
-    {"title": "title of post1", "content": "content post 1", "id": 1},
-    {"title": "title of post2", "content": "content post 2", "id": 2},
-    {"title": "title of post3", "content": "content post 3", "id": 3},
-]
-
-
-def find_post(post_id):
-    for post in my_posts:
-        print(post["id"])
-        if post["id"] == post_id:
-            return post
-    return None
-
-
-def find_index_by_id(post_id):
-    for index, post in enumerate(my_posts):
-        if post["id"] == post_id:
-            return index
-    return None
-
-
 @app.get("/")
 def root():
     return {"message": "Hello world!"}
 
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_post(user_post: Poster_pydantic, db: Session = Depends(get_db)):
+@app.post(
+    "/posts", status_code=status.HTTP_201_CREATED, response_model=ResponsePydan
+)
+def create_post(
+    user_post: CreateUpdatePostPydan, db: Session = Depends(get_db)
+):
     new_post = models.Poster(**user_post.dict())
 
     db.add(new_post)
@@ -74,15 +29,13 @@ def create_post(user_post: Poster_pydantic, db: Session = Depends(get_db)):
     # return back post
     db.refresh(new_post)
 
-    return {"Post": new_post}
+    return new_post
 
 
-@app.get("/posts")
+@app.get("/posts", response_model=list[ResponsePydan])
 def show_posts(db: Session = Depends(get_db)):
-    # cursor.execute("""SELECT * FROM posts""")
-    # posts = cursor.fetchall()
     posts = db.query(models.Poster).all()
-    return {"Posts": posts}
+    return posts
 
 
 @app.get("/posts/latest")
@@ -90,7 +43,7 @@ def show_last_post(db: Session = Depends(get_db)):
     post_query = db.query(models.Poster)
     index: int = post_query.count()
     post = post_query.where(models.Poster.id == index).first()
-    return {"Post": post}
+    return post
 
 
 @app.get("/posts/{post_id}")
@@ -102,7 +55,7 @@ def show_post(post_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"Post": f"Post with id: {post_id} not found"},
         )
-    return {"Post": post}
+    return post
 
 
 @app.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -118,9 +71,15 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.put("/posts/{post_id}", status_code=status.HTTP_202_ACCEPTED)
+@app.put(
+    "/posts/{post_id}",
+    response_model=ResponsePydan,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def udate_post(
-    post_id: int, user_post: Poster_pydantic, db: Session = Depends(get_db)
+    post_id: int,
+    user_post: CreateUpdatePostPydan,
+    db: Session = Depends(get_db),
 ):
     post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
     old_post = post_query.first()
@@ -132,5 +91,4 @@ def udate_post(
 
     post_query.update(user_post.dict(), synchronize_session=False)
     db.commit()
-
-    return {"message": post_query.first()}
+    return post_query
