@@ -4,6 +4,7 @@ import models
 from database import engine, get_db
 from sqlalchemy.orm import Session
 from schema import User, CreateUpdatePostPydan, PostUser, ResponsePydan
+from utils import hash_pass
 
 # Create table
 models.Poster.metadata.create_all(bind=engine)
@@ -98,6 +99,8 @@ def udate_post(
     "/users", response_model=PostUser, status_code=status.HTTP_201_CREATED
 )
 def create_user(user_data: User, db: Session = Depends(get_db)):
+    hash_passwd = hash_pass(user_data.password)
+    user_data.password = hash_passwd
     new_user = models.User(**user_data.dict())
 
     db.add(new_user)
