@@ -6,16 +6,16 @@ import models
 from fastapi import Depends, Response, status, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 
-router = APIRouter()
-
 # importing from parent directory
 current_dir = os.path.dirname(os.path.realpath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
+router = APIRouter(prefix="/posts")
+
 
 @router.post(
-    "/posts", status_code=status.HTTP_201_CREATED, response_model=ResponsePydan
+    "/", status_code=status.HTTP_201_CREATED, response_model=ResponsePydan
 )
 def create_post(
     user_post: CreateUpdatePostPydan, db: Session = Depends(get_db)
@@ -30,13 +30,13 @@ def create_post(
     return new_post
 
 
-@router.get("/posts", response_model=list[ResponsePydan])
+@router.get("/", response_model=list[ResponsePydan])
 def show_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Poster).all()
     return posts
 
 
-@router.get("/posts/latest")
+@router.get("/latest")
 def show_last_post(db: Session = Depends(get_db)):
     post_query = db.query(models.Poster)
     index: int = post_query.count()
@@ -44,7 +44,7 @@ def show_last_post(db: Session = Depends(get_db)):
     return post
 
 
-@router.get("/posts/{post_id}")
+@router.get("/{post_id}")
 def show_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Poster).filter(models.Poster.id == post_id).first()
 
@@ -56,7 +56,7 @@ def show_post(post_id: int, db: Session = Depends(get_db)):
     return post
 
 
-@router.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(post_id: int, db: Session = Depends(get_db)):
     post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
     if post_query.first() is None:
@@ -70,7 +70,7 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
 
 
 @router.put(
-    "/posts/{post_id}",
+    "/{post_id}",
     response_model=ResponsePydan,
     status_code=status.HTTP_202_ACCEPTED,
 )
