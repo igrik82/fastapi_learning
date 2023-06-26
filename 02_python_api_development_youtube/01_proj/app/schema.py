@@ -1,7 +1,7 @@
 """Pydantics schema"""
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class BasePydantic(BaseModel):
@@ -21,3 +21,15 @@ class CreateUpdatePostPydan(BasePydantic):
 class ResponsePydan(BasePydantic):
     id: int
     created_at: datetime
+
+
+class PostUser(BaseModel):
+    login: str
+    email: EmailStr
+
+    class Config:
+        orm_mode = True
+
+
+class User(PostUser):
+    password: str
