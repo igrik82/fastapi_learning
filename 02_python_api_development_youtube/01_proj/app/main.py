@@ -3,7 +3,7 @@ from fastapi import Depends, FastAPI, Response, status, HTTPException
 import models
 from database import engine, get_db
 from sqlalchemy.orm import Session
-from schema import CreateUpdatePostPydan, ResponsePydan
+from schema import User, CreateUpdatePostPydan, PostUser, ResponsePydan
 
 # Create table
 models.Poster.metadata.create_all(bind=engine)
@@ -92,3 +92,17 @@ def udate_post(
     post_query.update(user_post.dict(), synchronize_session=False)
     db.commit()
     return post_query
+
+
+@app.post(
+    "/users", response_model=PostUser, status_code=status.HTTP_201_CREATED
+)
+def create_user(user_data: User, db: Session = Depends(get_db)):
+    new_user = models.User(**user_data.dict())
+
+    db.add(new_user)
+    db.commit()
+    # return back post
+    db.refresh(new_user)
+
+    return new_user
