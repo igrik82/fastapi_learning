@@ -3,7 +3,7 @@ from fastapi import Depends, FastAPI, Response, status, HTTPException
 import models
 from database import engine, get_db
 from sqlalchemy.orm import Session
-from schema import User, CreateUpdatePostPydan, PostUser, ResponsePydan
+from schema import InUser, CreateUpdatePostPydan, OutUser, ResponsePydan
 from utils import hash_pass
 
 # Create table
@@ -96,9 +96,9 @@ def udate_post(
 
 
 @app.post(
-    "/users", response_model=PostUser, status_code=status.HTTP_201_CREATED
+    "/users", response_model=OutUser, status_code=status.HTTP_201_CREATED
 )
-def create_user(user_data: User, db: Session = Depends(get_db)):
+def create_user(user_data: InUser, db: Session = Depends(get_db)):
     hash_passwd = hash_pass(user_data.password)
     user_data.password = hash_passwd
     new_user = models.User(**user_data.dict())
@@ -109,3 +109,15 @@ def create_user(user_data: User, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return new_user
+
+
+@app.get("/users/{id}", response_model=OutUser)
+def get_user_by_id(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return user
