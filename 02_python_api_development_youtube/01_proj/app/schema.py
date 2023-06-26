@@ -23,7 +23,7 @@ class ResponsePydan(BasePydantic):
     created_at: datetime
 
 
-class PostUser(BaseModel):
+class OutUser(BaseModel):
     login: str
     email: EmailStr
 
@@ -31,5 +31,5 @@ class PostUser(BaseModel):
         orm_mode = True
 
 
-class User(PostUser):
+class InUser(OutUser):
     password: str
