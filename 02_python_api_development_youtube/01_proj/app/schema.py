@@ -33,3 +33,11 @@ class OutUser(BaseModel):
 
 class InUser(OutUser):
     password: str
+
+
+class UserAuth(BaseModel):
+    email: EmailStr
+    password: str
+
+    class Config:
+        orm_mode = True
