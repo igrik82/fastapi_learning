@@ -5,6 +5,7 @@ from schema import CreateUpdatePostPydan, ResponsePydan
 import models
 from fastapi import Depends, Response, status, HTTPException, APIRouter
 from sqlalchemy.orm import Session
+from oauth2 import get_current_user
 
 # importing from parent directory
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -18,8 +19,12 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
     "/", status_code=status.HTTP_201_CREATED, response_model=ResponsePydan
 )
 def create_post(
-    user_post: CreateUpdatePostPydan, db: Session = Depends(get_db)
+    user_post: CreateUpdatePostPydan,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user),
 ):
+    print(user_id)
+
     new_post = models.Poster(**user_post.dict())
 
     db.add(new_post)

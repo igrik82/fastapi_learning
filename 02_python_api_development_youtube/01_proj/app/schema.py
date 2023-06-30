@@ -41,3 +41,13 @@ class UserAuth(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SendToken(BaseModel):
+    token: str
+    token_type: str
+    # There is not database query. Config no needed
+
+
+class TokenData(BaseModel):
+    id: Optional[str] = None
