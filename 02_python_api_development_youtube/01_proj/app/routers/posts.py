@@ -21,7 +21,7 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 def create_post(
     user_post: CreateUpdatePostPydan,
     db: Session = Depends(get_db),
-    current_user: int = Depends(get_current_user),
+    current_user: models.User = Depends(get_current_user),
 ):
     print(current_user.email)
 
