@@ -41,6 +41,6 @@ def auth(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials"
         )
 
-    access_token = create_token(data={"user_id": user.id})
+    access_token = create_token(data={"current_user": user.id})
 
     return {"token": access_token, "token_type": "Bearer"}
