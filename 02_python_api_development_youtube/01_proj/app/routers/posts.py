@@ -23,7 +23,6 @@ def create_post(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    print(current_user.id)
     new_post = models.Poster(user_id=current_user.id, **user_post.dict())
 
     db.add(new_post)
@@ -61,11 +60,22 @@ def show_post(post_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(post_id: int, db: Session = Depends(get_db)):
+def delete_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
     post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
+
     if post_query.first() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
+        )
+
+    if post_query.first().user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorize to delete this post",
         )
 
     post_query.delete(synchronize_session=False)
@@ -82,11 +92,17 @@ def udate_post(
     post_id: int,
     user_post: CreateUpdatePostPydan,
     db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
 ):
     post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
-    old_post = post_query.first()
 
-    if old_post is None:
+    if post_query.first().user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorize to delete this post",
+        )
+
+    if post_query.first() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
