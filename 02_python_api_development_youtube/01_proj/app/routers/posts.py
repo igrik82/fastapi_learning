@@ -23,7 +23,7 @@ def create_post(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    new_post = models.Poster(user_id=current_user.id, **user_post.dict())
+    new_post = models.Poster(owner_id=current_user.id, **user_post.dict())
 
     db.add(new_post)
     db.commit()
@@ -72,7 +72,7 @@ def delete_post(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
 
-    if post_query.first().user_id != current_user.id:
+    if post_query.first().owner_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorize to delete this post",
@@ -96,7 +96,7 @@ def udate_post(
 ):
     post_query = db.query(models.Poster).filter(models.Poster.id == post_id)
 
-    if post_query.first().user_id != current_user.id:
+    if post_query.first().owner_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorize to delete this post",

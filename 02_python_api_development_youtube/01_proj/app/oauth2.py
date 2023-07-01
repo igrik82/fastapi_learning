@@ -12,12 +12,12 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth")
 
 SECRET_KEY = "asdjflkeqwriouhdsiuafhpaiushdfjkhlskdjfhqwblkjvasdpuiwerbnkj341"
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_MINUTS = 300
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 
 def create_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTS)
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({"exp": expire})
 
@@ -30,7 +30,7 @@ def verify_access_token(token: str, credential_exception) -> TokenData:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        # user_id same as in auth.py
+        # owner_id same as in auth.py
         id: int = payload.get("current_user")
 
         if id is None:

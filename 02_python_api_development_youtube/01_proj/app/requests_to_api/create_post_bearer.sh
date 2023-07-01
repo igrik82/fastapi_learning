@@ -14,4 +14,4 @@ EOF
 curl -w '\n' -L -X POST http://192.168.88.226:8888/posts \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer ${TOKEN}" \
-    -d "${JSON_BODY}"
+    -d "${JSON_BODY}" | jq

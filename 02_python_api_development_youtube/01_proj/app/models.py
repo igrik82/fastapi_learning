@@ -22,7 +22,7 @@ class Poster(Base):
         server_default="True", nullable=True
     )
     rating: Mapped[int] = mapped_column(nullable=True)
-    user_id: Mapped[int] = mapped_column(
+    owner_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE")
     )
     owner = relationship("User")

@@ -33,7 +33,7 @@ class CreateUpdatePostPydan(BasePydantic):
 class ResponsePydan(BasePydantic):
     id: int
     created_at: datetime
-    user_id: int
+    owner_id: int
     owner: OutUser
 
 
