@@ -1,5 +1,6 @@
 """SqlAlchemy models"""
 from datetime import datetime
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -21,6 +22,9 @@ class Poster(Base):
         server_default="True", nullable=True
     )
     rating: Mapped[int] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE")
+    )
 
 
 class User(Base):

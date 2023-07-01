@@ -23,9 +23,8 @@ def create_post(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    print(current_user.email)
-
-    new_post = models.Poster(**user_post.dict())
+    print(current_user.id)
+    new_post = models.Poster(user_id=current_user.id, **user_post.dict())
 
     db.add(new_post)
     db.commit()

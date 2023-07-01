@@ -21,6 +21,7 @@ class CreateUpdatePostPydan(BasePydantic):
 class ResponsePydan(BasePydantic):
     id: int
     created_at: datetime
+    user_id: int
 
 
 class OutUser(BaseModel):
