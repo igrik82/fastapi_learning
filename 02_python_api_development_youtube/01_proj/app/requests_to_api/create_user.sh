@@ -15,14 +15,22 @@ while getopts "e:p:" opt; do
     *)
         echo "Invalid option! Use -e email@email.com -p password."
         exit 1;;
-
-
     esac
 done
 
+LOGIN=$(echo ${EMAIL} | cut -d "@" -f1)
 
-curl $1 -L -X POST http://192.168.88.226:8888/auth \
+JSON_BODY=$(cat <<EOF
+{
+    "login": "${LOGIN}",
+    "email": "${2}",
+    "password": "${3}"
+}
+EOF
+)
+
+curl -X 'POST' \
+    'http://192.168.88.226:8888/users/' \
     -H 'accept: application/json' \
-    -H 'Content-Type: application/x-www-form-urlencoded' \
-    -d "grant_type=&username=${EMAIL}&password=${PASSWORD}" \
-    | jq -r '.token' > token
+    -H 'Content-Type: application/json' \
+    -d "${JSON_BODY}"
