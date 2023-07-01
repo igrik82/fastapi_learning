@@ -1,7 +1,7 @@
 """SqlAlchemy models"""
 from datetime import datetime
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 
@@ -25,6 +25,7 @@ class Poster(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE")
     )
+    owner = relationship("User")
 
 
 class User(Base):
