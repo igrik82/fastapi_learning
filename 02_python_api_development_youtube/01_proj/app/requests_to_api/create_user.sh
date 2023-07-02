@@ -24,12 +24,12 @@ JSON_BODY=$(cat <<EOF
 {
     "login": "${LOGIN}",
     "email": "${2}",
-    "password": "${3}"
+    "password": "${4}"
 }
 EOF
 )
 
-curl -X 'POST' \
+curl --silent -X 'POST' \
     'http://192.168.88.226:8888/users/' \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
