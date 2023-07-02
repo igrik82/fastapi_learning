@@ -11,7 +11,7 @@ JSON_BODY=$(cat <<EOF
 EOF
 )
 
-curl -w '\n' -L -X POST http://192.168.88.226:8888/posts \
+curl --silent -w '\n' -L -X POST http://192.168.88.226:8888/posts \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer ${TOKEN}" \
     -d "${JSON_BODY}" | jq

@@ -21,6 +21,6 @@ done
 
 TOKEN=$(cat token)
 
-curl -w '\n' -L -X DELETE http://192.168.88.226:8888/posts/${POST_NUM} \
+curl --silent -w '\n' -L -X DELETE http://192.168.88.226:8888/posts/${POST_NUM} \
     -H 'accept: */*' \
     -H "Authorization: Bearer ${TOKEN}" \

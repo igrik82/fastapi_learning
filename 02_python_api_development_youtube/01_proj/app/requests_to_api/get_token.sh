@@ -21,7 +21,7 @@ while getopts "e:p:" opt; do
 done
 
 
-curl $1 -L -X POST http://192.168.88.226:8888/auth \
+curl --silent -L -X POST http://192.168.88.226:8888/auth \
     -H 'accept: application/json' \
     -H 'Content-Type: application/x-www-form-urlencoded' \
     -d "grant_type=&username=${EMAIL}&password=${PASSWORD}" \
