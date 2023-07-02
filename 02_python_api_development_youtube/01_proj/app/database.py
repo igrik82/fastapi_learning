@@ -1,11 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
+from config import settings
 
-
-DATABASE = "blog"
 engine = create_engine(
-    f"postgresql+psycopg://fastapi:123456@192.168.88.226/{DATABASE}",
+    f"postgresql+psycopg://{settings.database_username}:\
+            {settings.database_password}\
+            @{settings.database_host}:\
+            {settings.database_port}/{settings.database_name}",
+    # {settings.database_name}",
     echo=False,
 )
 

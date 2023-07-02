@@ -3,6 +3,7 @@ from fastapi import FastAPI
 import models
 from database import engine
 from routers import posts, users, auth
+from config import settings
 
 # Create table
 models.Poster.metadata.create_all(bind=engine)
