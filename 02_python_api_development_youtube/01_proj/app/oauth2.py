@@ -6,20 +6,25 @@ from schema import TokenData
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from database import get_db
+from config import settings
 
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth")
 
-SECRET_KEY = "asdjflkeqwriouhdsiuafhpaiushdfjkhlskdjfhqwblkjvasdpuiwerbnkj341"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 300
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 
 def create_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    to_encode.update({"exp": expire})
+    expire_time = datetime.now() + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    expire_timestamp = datetime.timestamp(expire_time)
+
+    to_encode.update({"exp": expire_timestamp})
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -29,6 +34,10 @@ def create_token(data: dict):
 def verify_access_token(token: str, credential_exception) -> TokenData:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+        expiration = payload.get("exp")
+        if expiration < datetime.timestamp(datetime.now()):
+            raise credential_exception
 
         # owner_id same as in auth.py
         id: int = payload.get("current_user")
