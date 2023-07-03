@@ -3,13 +3,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 from config import settings
 
+
 engine = create_engine(
     f"postgresql+psycopg://{settings.database_username}:\
-            {settings.database_password}\
-            @{settings.database_host}:\
-            {settings.database_port}/{settings.database_name}",
-    # {settings.database_name}",
-    echo=False,
+{settings.database_password}@{settings.database_host}:\
+{settings.database_port}/{settings.database_name}",
+    echo=True,
 )
 
 if not database_exists(engine.url):
