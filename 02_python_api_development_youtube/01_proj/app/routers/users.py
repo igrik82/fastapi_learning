@@ -4,7 +4,7 @@ from database import get_db
 from schema import InUser, OutUser
 from utils import hash_pass
 import models
-from fastapi import Depends, FastAPI, status, HTTPException, APIRouter
+from fastapi import Depends, status, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 
 # importing from parent directory
