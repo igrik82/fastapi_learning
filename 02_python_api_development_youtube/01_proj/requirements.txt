@@ -5,3 +5,4 @@ passlib[bcrypt] # For hashing password
 sqlalchemy
 sqlalchemy-utils # Create Database if not exist
 python-jose[cryptography] # jwt tocken
+alembic # Database migration
