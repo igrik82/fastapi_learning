@@ -7,7 +7,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
 )
-from sqlalchemy.schema import Sequence, UniqueConstraint
+from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 

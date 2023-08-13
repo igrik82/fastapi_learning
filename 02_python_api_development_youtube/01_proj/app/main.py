@@ -1,12 +1,11 @@
 """First project"""
 from fastapi import FastAPI
-import models
-from database import engine
+
 from routers import posts, users, auth, votes
-from config import settings
+
 
 # Create table
-models.Poster.metadata.create_all(bind=engine)
+# models.Poster.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.include_router(posts.router)
